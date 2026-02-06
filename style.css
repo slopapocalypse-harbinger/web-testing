@@ -15,12 +15,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overscroll-behavior: none;
+  touch-action: manipulation;
 }
 
 #app {
   position: relative;
   width: min(100vw, 920px);
-  height: min(100vh, 540px);
+  height: min(100svh, 540px);
   display: grid;
   place-items: center;
 }
@@ -32,6 +36,8 @@ body {
   background: #102739;
   border: 4px solid #1c3d55;
   border-radius: 8px;
+  touch-action: none;
+  user-select: none;
 }
 
 .overlay {
@@ -143,6 +149,8 @@ button.ghost {
   border: 2px solid rgba(255, 255, 255, 0.5);
   background: rgba(0, 0, 0, 0.2);
   pointer-events: auto;
+  touch-action: none;
+  user-select: none;
 }
 
 #joystick .stick {
@@ -163,6 +171,7 @@ button.ghost {
   flex-direction: column;
   gap: 10px;
   pointer-events: auto;
+  touch-action: none;
 }
 
 #tutorial {
@@ -177,7 +186,7 @@ button.ghost {
   display: flex;
 }
 
-@media (max-width: 900px) {
+@media (pointer: coarse), (max-width: 900px) {
   #touch {
     display: block;
   }
@@ -188,5 +197,10 @@ button.ghost {
 
   .bar {
     width: 90px;
+  }
+
+  button {
+    padding: 12px 18px;
+    font-size: 14px;
   }
 }
