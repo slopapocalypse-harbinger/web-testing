@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bufflehead Quest</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="game" width="320" height="180" aria-label="Bufflehead Quest game canvas"></canvas>
+      <div id="hud" class="overlay">
+        <div class="hud-row">
+          <div class="hud-block">
+            <span>Hunger</span>
+            <div class="bar"><div id="hunger-fill" class="fill"></div></div>
+          </div>
+          <div class="hud-block">
+            <span>Score</span>
+            <strong id="score">0</strong>
+          </div>
+          <div class="hud-block">
+            <span>Level</span>
+            <strong id="level">1</strong>
+          </div>
+          <div class="hud-block">
+            <span>Objective</span>
+            <strong id="objective">0/0</strong>
+          </div>
+        </div>
+        <div class="hud-row secondary">
+          <div class="hud-block">
+            <span>Combo</span>
+            <strong id="combo">x1</strong>
+          </div>
+          <div class="hud-block">
+            <span>Compass</span>
+            <strong id="compass">→</strong>
+          </div>
+          <button id="mute" class="ghost" type="button">🔊</button>
+        </div>
+      </div>
+      <div id="screen" class="overlay screen">
+        <div id="screen-content" class="panel"></div>
+      </div>
+      <div id="touch" class="overlay">
+        <div id="joystick">
+          <div class="stick"></div>
+        </div>
+        <div class="touch-buttons">
+          <button id="flap" type="button">Flap</button>
+          <button id="peck" type="button">Peck</button>
+        </div>
+      </div>
+      <div id="tutorial" class="overlay">
+        <div class="panel">
+          <h2>Level 1: How to survive</h2>
+          <ul>
+            <li>Swim on the waterline, flap to fly up.</li>
+            <li>Collect food to refill hunger and score points.</li>
+            <li>Avoid predators and hazards.</li>
+            <li>Complete the objective before hunger hits zero.</li>
+          </ul>
+          <button id="tutorial-close" type="button">Got it</button>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
