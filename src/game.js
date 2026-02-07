@@ -59,7 +59,8 @@ export class Game {
     this.player.vx = 0;
     this.player.vy = 0;
     this.player.speedBoost = 0;
-    this.hunger = Math.max(this.hunger, HUNGER_MAX * 0.8);
+    const startHunger = this.level.startHunger ?? 0.85;
+    this.hunger = Math.max(this.hunger, HUNGER_MAX * startHunger);
     this.combo = 1;
     this.comboTimer = 0;
     this.collectedCount = 0;
@@ -122,21 +123,22 @@ export class Game {
     const level = this.level;
     const player = this.player;
     const inWater = player.y >= level.waterline - 2;
-    const baseSpeed = inWater ? 65 : 55;
+    const baseSpeed = inWater ? 75 : 60;
     const boost = player.speedBoost > 0 ? 1.4 : 1;
     const speed = baseSpeed * boost;
 
     player.vx += actions.x * speed * dt * 3;
     if (inWater) {
-      player.vy += actions.y * 25 * dt;
+      player.vy += actions.y * 60 * dt;
       if (actions.flap) {
-        player.vy -= 40 * dt;
+        player.vy -= 120 * dt;
       }
     } else {
       if (actions.flap) {
-        player.vy -= 220 * dt;
+        player.vy -= 240 * dt;
       }
-      player.vy += 280 * dt;
+      player.vy += 220 * dt;
+      player.vy += actions.y * 60 * dt;
     }
 
     player.vx *= 0.9;
@@ -148,13 +150,9 @@ export class Game {
     player.x = Math.max(10, Math.min(this.renderer.baseWidth - 10, player.x));
     player.y = Math.max(8, Math.min(this.renderer.baseHeight - 8, player.y));
 
-    if (inWater && player.y < level.waterline - 8) {
-      player.y = level.waterline - 8;
-      player.vy = 0;
-    }
-
-    const drain = inWater ? 1.2 : 1.8;
-    this.hunger -= drain * dt * (actions.flap ? 1.15 : 1);
+    const drain = inWater ? 1.0 : 1.5;
+    const drainScale = level.drainScale ?? 1;
+    this.hunger -= drain * drainScale * dt * (actions.flap ? 1.1 : 1);
     if (player.speedBoost > 0) {
       player.speedBoost -= dt;
     }
@@ -172,7 +170,7 @@ export class Game {
     this.updatePredators(dt);
     this.updateHazards(dt);
     this.updatePowerUps(dt);
-    this.collectFood(actions);
+    this.collectFood();
 
     if (this.hunger <= 0) {
       this.state = "gameover";
@@ -242,6 +240,7 @@ export class Game {
   updatePredators(dt) {
     const player = this.player;
     const level = this.level;
+    const dangerScale = level.dangerScale ?? 1;
     this.predatorPool.forEachActive((pred) => {
       const sameZone = pred.type === "hawk" ? player.y < level.waterline : player.y >= level.waterline - 4;
       const dx = player.x - pred.x;
@@ -264,7 +263,7 @@ export class Game {
       pred.y = Math.max(8, Math.min(this.renderer.baseHeight - 8, pred.y));
 
       if (circleHit(pred, player)) {
-        this.hunger -= 12 * dt;
+        this.hunger -= 12 * dangerScale * dt;
         player.vx -= dx * 0.01;
         player.vy -= dy * 0.01;
       }
@@ -273,6 +272,7 @@ export class Game {
 
   updateHazards(dt) {
     const player = this.player;
+    const dangerScale = this.level.dangerScale ?? 1;
     this.hazardPool.forEachActive((hazard) => {
       if (hazard.type === "gust" && circleHit(hazard, player)) {
         player.vx += 40 * dt;
@@ -282,7 +282,7 @@ export class Game {
         player.vx *= 0.96;
       }
       if (hazard.type === "rock" && circleHit(hazard, player)) {
-        this.hunger -= 6 * dt;
+        this.hunger -= 6 * dangerScale * dt;
       }
     });
   }
@@ -296,16 +296,14 @@ export class Game {
     });
   }
 
-  collectFood(actions) {
+  collectFood() {
     const player = this.player;
     this.foodPool.forEachActive((food) => {
       const type = FOOD_TYPES[food.type];
-      const requiresPeck = food.type === "clam";
-      if (circleHit(player, food) && (!requiresPeck || actions.peck)) {
+      if (circleHit(player, food)) {
         food.active = false;
-        const bonus = actions.peck ? 1.2 : 1;
         const comboMultiplier = this.combo;
-        this.score += Math.floor(type.score * comboMultiplier * bonus);
+        this.score += Math.floor(type.score * comboMultiplier);
         this.hunger = Math.min(HUNGER_MAX, this.hunger + type.hunger);
         this.combo = Math.min(4, this.combo + 1);
         this.comboTimer = COMBO_WINDOW;
