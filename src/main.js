@@ -9,7 +9,6 @@ const canvas = document.getElementById("game");
 const joystick = document.getElementById("joystick");
 const stick = joystick?.querySelector(".stick");
 const flapBtn = document.getElementById("flap");
-const peckBtn = document.getElementById("peck");
 const screen = document.getElementById("screen");
 const screenContent = document.getElementById("screen-content");
 const tutorial = document.getElementById("tutorial");
@@ -27,7 +26,7 @@ const renderer = new Renderer(canvas);
 renderer.resize();
 window.addEventListener("resize", () => renderer.resize());
 
-const input = new InputManager(canvas, joystick, stick, flapBtn, peckBtn);
+const input = new InputManager(canvas, joystick, stick, flapBtn);
 const audio = new AudioManager();
 
 const ui = {
@@ -69,7 +68,7 @@ const ui = {
   showTitle() {
     ui.showScreen(`
       <h1>Bufflehead Quest</h1>
-      <p>Swim, flap, and forage to survive the migration.</p>
+      <p>Swim, boost, and forage to survive the migration.</p>
       <button id="start-run">Start Run</button>
     `);
     document.getElementById("start-run").addEventListener("click", () => {

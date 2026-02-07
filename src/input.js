@@ -2,12 +2,11 @@ const DEFAULT = {
   x: 0,
   y: 0,
   flap: false,
-  peck: false,
   pause: false,
 };
 
 export class InputManager {
-  constructor(canvas, joystickEl, stickEl, flapBtn, peckBtn) {
+  constructor(canvas, joystickEl, stickEl, flapBtn) {
     this.canvas = canvas;
     this.state = { ...DEFAULT };
     this.joystickEl = joystickEl;
@@ -35,13 +34,12 @@ export class InputManager {
       flapBtn.addEventListener("pointerleave", () => this.setAction("flap", false));
     }
 
-    if (peckBtn) {
-      peckBtn.addEventListener("pointerdown", () => this.setAction("peck", true));
-      peckBtn.addEventListener("pointerup", () => this.setAction("peck", false));
-      peckBtn.addEventListener("pointerleave", () => this.setAction("peck", false));
-    }
-
-    canvas.addEventListener("pointerdown", () => this.handleFirstInteraction());
+    canvas.addEventListener("pointerdown", () => {
+      this.setAction("flap", true);
+      this.handleFirstInteraction();
+    });
+    canvas.addEventListener("pointerup", () => this.setAction("flap", false));
+    canvas.addEventListener("pointerleave", () => this.setAction("flap", false));
     canvas.addEventListener("touchstart", () => this.handleFirstInteraction(), { passive: true });
   }
 
@@ -86,12 +84,10 @@ export class InputManager {
         this.state.y = pressed ? 1 : this.state.y === 1 ? 0 : this.state.y;
         break;
       case " ":
-        this.state.flap = pressed;
-        break;
       case "Enter":
       case "e":
       case "E":
-        this.state.peck = pressed;
+        this.state.flap = pressed;
         break;
       case "Escape":
         if (pressed) {
@@ -165,7 +161,6 @@ export class InputManager {
       x,
       y,
       flap: this.state.flap,
-      peck: this.state.peck,
       pause: this.state.pause,
     };
     this.state.pause = false;

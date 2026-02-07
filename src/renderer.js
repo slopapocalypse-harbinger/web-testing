@@ -1,3 +1,5 @@
+import { SPRITE_SHEET_DATA } from "./spritesheet-data.js";
+
 export class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
@@ -6,6 +8,13 @@ export class Renderer {
     this.baseWidth = canvas.width;
     this.baseHeight = canvas.height;
     this.sprites = new Map();
+    this.spriteSheet = new Image();
+    this.spriteSheetLoaded = false;
+    this.spriteSheet.onload = () => {
+      this.spriteSheetLoaded = true;
+    };
+    this.spriteSheet.src = SPRITE_SHEET_DATA;
+    this.tileSize = 16;
   }
 
   resize() {
@@ -20,112 +29,49 @@ export class Renderer {
     this.ctx.fillRect(0, 0, this.baseWidth, this.baseHeight);
   }
 
-  generateSprite(key, drawFn) {
-    const size = 16;
-    const off = document.createElement("canvas");
-    off.width = size;
-    off.height = size;
-    const ctx = off.getContext("2d");
-    ctx.imageSmoothingEnabled = false;
-    drawFn(ctx, size);
-    this.sprites.set(key, off);
-    return off;
-  }
-
-  getSprite(key) {
-    return this.sprites.get(key);
-  }
-
   ensureSprites() {
     if (this.sprites.size) {
       return;
     }
-
-    this.generateSprite("duck", (ctx) => {
-      ctx.fillStyle = "#1b1b1b";
-      ctx.fillRect(4, 4, 8, 8);
-      ctx.fillStyle = "#f5f5f5";
-      ctx.fillRect(5, 5, 6, 6);
-      ctx.fillStyle = "#4b4b4b";
-      ctx.fillRect(6, 6, 4, 4);
-      ctx.fillStyle = "#f2d45c";
-      ctx.fillRect(11, 7, 3, 2);
-      ctx.fillStyle = "#3c6f8f";
-      ctx.fillRect(2, 9, 3, 3);
-    });
-
-    this.generateSprite("fish", (ctx) => {
-      ctx.fillStyle = "#6ad1e3";
-      ctx.fillRect(4, 7, 8, 4);
-      ctx.fillRect(2, 8, 3, 2);
-      ctx.fillStyle = "#1b1b1b";
-      ctx.fillRect(10, 8, 1, 1);
-    });
-
-    this.generateSprite("clam", (ctx) => {
-      ctx.fillStyle = "#d9b0d6";
-      ctx.fillRect(4, 6, 8, 6);
-      ctx.fillStyle = "#b487b0";
-      ctx.fillRect(5, 7, 6, 4);
-    });
-
-    this.generateSprite("insect", (ctx) => {
-      ctx.fillStyle = "#f2d45c";
-      ctx.fillRect(6, 6, 4, 4);
-      ctx.fillStyle = "#1b1b1b";
-      ctx.fillRect(5, 5, 2, 2);
-      ctx.fillRect(9, 5, 2, 2);
-    });
-
-    this.generateSprite("hawk", (ctx) => {
-      ctx.fillStyle = "#8b5b3c";
-      ctx.fillRect(3, 6, 10, 4);
-      ctx.fillRect(2, 7, 2, 2);
-      ctx.fillRect(12, 7, 2, 2);
-      ctx.fillStyle = "#f2d45c";
-      ctx.fillRect(11, 8, 2, 1);
-    });
-
-    this.generateSprite("otter", (ctx) => {
-      ctx.fillStyle = "#7a4a2f";
-      ctx.fillRect(4, 7, 8, 5);
-      ctx.fillStyle = "#d9b08c";
-      ctx.fillRect(6, 8, 4, 3);
-    });
-
-    this.generateSprite("rock", (ctx) => {
-      ctx.fillStyle = "#5a6a7a";
-      ctx.fillRect(4, 8, 8, 4);
-      ctx.fillRect(5, 6, 6, 3);
-    });
-
-    this.generateSprite("reed", (ctx) => {
-      ctx.fillStyle = "#5da562";
-      ctx.fillRect(7, 3, 2, 10);
-      ctx.fillStyle = "#3c7a42";
-      ctx.fillRect(6, 6, 2, 7);
-    });
-
-    this.generateSprite("gust", (ctx) => {
-      ctx.fillStyle = "#b1e4f1";
-      ctx.fillRect(3, 6, 10, 2);
-      ctx.fillRect(5, 9, 8, 2);
-    });
-
-    this.generateSprite("current", (ctx) => {
-      ctx.fillStyle = "#f2d45c";
-      ctx.fillRect(5, 5, 6, 6);
-      ctx.fillStyle = "#f27b50";
-      ctx.fillRect(6, 6, 4, 4);
+    const tile = this.tileSize;
+    const map = new Map([
+      ["duck", { x: 1 * tile, y: 5 * tile, w: tile, h: tile }],
+      ["fish", { x: 0 * tile, y: 3 * tile, w: tile, h: tile }],
+      ["clam", { x: 7 * tile, y: 3 * tile, w: tile, h: tile }],
+      ["insect", { x: 5 * tile, y: 3 * tile, w: tile, h: tile }],
+      ["hawk", { x: 1 * tile, y: 7 * tile, w: tile, h: tile }],
+      ["otter", { x: 0 * tile, y: 6 * tile, w: tile, h: tile }],
+      ["rock", { x: 21 * tile, y: 1 * tile, w: tile, h: tile }],
+      ["reed", { x: 25 * tile, y: 1 * tile, w: tile, h: tile }],
+      ["gust", { x: 27 * tile, y: 1 * tile, w: tile, h: tile }],
+      ["current", { x: 11 * tile, y: 3 * tile, w: tile, h: tile }],
+    ]);
+    map.forEach((value, key) => {
+      this.sprites.set(key, value);
     });
   }
 
   drawSprite(key, x, y, size = 16) {
-    const sprite = this.getSprite(key);
+    const sprite = this.sprites.get(key);
     if (!sprite) {
       return;
     }
-    this.ctx.drawImage(sprite, x - size / 2, y - size / 2, size, size);
+    if (!this.spriteSheetLoaded) {
+      this.ctx.fillStyle = "#f2d45c";
+      this.ctx.fillRect(x - size / 2, y - size / 2, size, size);
+      return;
+    }
+    this.ctx.drawImage(
+      this.spriteSheet,
+      sprite.x,
+      sprite.y,
+      sprite.w,
+      sprite.h,
+      x - size / 2,
+      y - size / 2,
+      size,
+      size
+    );
   }
 
   drawBackground(level, time) {

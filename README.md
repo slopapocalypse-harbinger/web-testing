@@ -16,13 +16,11 @@ Then open <http://localhost:8000>.
 
 **Mobile**
 - Drag the on-screen joystick to move.
-- Tap **Flap** to gain lift (flying) or hop (swimming).
-- Tap **Peck** to collect deep-water clams and confirm risky pickups.
+- Tap **Boost** to gain lift (flying) or hop (swimming).
 
 **Desktop**
 - Move: Arrow keys or WASD
-- Flap/boost: Space
-- Peck/collect: E or Enter
+- Boost: Space, Enter, or E
 - Pause: Esc
 
 ## Gameplay loop
